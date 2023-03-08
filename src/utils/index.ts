@@ -10,17 +10,17 @@ export function getUserMedia(constrains: MediaStreamConstraints) {
   }
 }
 
-export function getUserMediaStream() {
-  function success(stream: MediaStream, video: HTMLVideoElement) {
-    return new Promise((resolve, reject) => {
-      video.srcObject = stream
-      video.onloadedmetadata = () => {
-        video.play()
-        resolve()
-      }
-    })
-  }
+function success(stream: MediaStream, video: HTMLVideoElement) {
+  return new Promise<void>((resolve, reject) => {
+    video.srcObject = stream
+    video.onloadedmetadata = () => {
+      video.play()
+      resolve()
+    }
+  })
+}
 
+export function getUserMediaStream(videoNode: HTMLVideoElement) {
   return getUserMedia({
     audio: false,
     video: {
@@ -28,10 +28,12 @@ export function getUserMediaStream() {
         exact: 'environment'
       }
     }
-  }).then((res) => {
-    return success(res, videoNode)
-  }).catch((err: Error) => {
-    console.log('访问用户媒体失败',err.name,err.message))
-    return Promise.reject();
   })
+    .then((res) => {
+      return success(res, videoNode)
+    })
+    .catch((err: Error) => {
+      console.log('访问用户媒体失败', err.name, err.message)
+      return Promise.reject()
+    })
 }
